@@ -1,59 +1,87 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { Suspense } from "react";
 import { motion } from "framer-motion";
 import Logo from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
+import { getCollections } from "@/lib/supabase";
 
-export default function Home() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
-  // Mock images for the carousel
-  const images = [
-    "/hero1.jpg",
-    "/hero2.jpg",
-    "/hero3.jpg",
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
-        prevIndex === images.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [images.length]);
-
-  // Get time-based greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 18) return "Good afternoon";
-    return "Good evening";
-  };
-
+// Loading skeleton for collections
+function CollectionsSkeleton() {
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background image carousel */}
-      <div className="absolute inset-0 z-0">
-        {images.map((image, index) => (
-          <motion.div
-            key={index}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ 
-              backgroundImage: `url(${image})`,
-              backgroundBlendMode: "overlay",
-              backgroundColor: "rgba(0, 0, 0, 0.5)"
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: index === currentImageIndex ? 1 : 0 }}
-            transition={{ duration: 1 }}
-          />
+    <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
+      {[1, 2, 3].map((item) => (
+        <div 
+          key={item}
+          className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 animate-pulse"
+        >
+          <div className="h-4 bg-gray-700 rounded w-3/4 mb-4"></div>
+          <div className="h-3 bg-gray-700 rounded w-full mb-2"></div>
+          <div className="h-3 bg-gray-700 rounded w-2/3"></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Collections component that fetches data
+async function Collections() {
+  const { data: collections, error } = await getCollections();
+  
+  if (error) {
+    console.error("Error fetching collections:", error);
+    return (
+      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
+        {[1, 2, 3].map((item) => (
+          <div 
+            key={item}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
+          >
+            <h3 className="text-xl font-semibold text-cyan-400">Featured Collection {item}</h3>
+            <p className="mt-2 text-gray-300">Explore our curated collection of stunning AI-generated images</p>
+          </div>
         ))}
       </div>
-      
-      {/* Gradient overlay */}
+    );
+  }
+
+  return (
+    <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
+      {collections && collections.length > 0 ? (
+        collections.slice(0, 3).map((collection) => (
+          <div 
+            key={collection.id}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
+          >
+            <h3 className="text-xl font-semibold text-cyan-400">{collection.name}</h3>
+            <p className="mt-2 text-gray-300">{collection.description || "Explore our curated collection of stunning AI-generated images"}</p>
+          </div>
+        ))
+      ) : (
+        [1, 2, 3].map((item) => (
+          <div 
+            key={item}
+            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
+          >
+            <h3 className="text-xl font-semibold text-cyan-400">Featured Collection {item}</h3>
+            <p className="mt-2 text-gray-300">Explore our curated collection of stunning AI-generated images</p>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+// Get time-based greeting
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+export default function Home() {
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background with gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/90 z-10" />
       
       {/* Content */}
@@ -95,22 +123,9 @@ export default function Home() {
           </Button>
         </motion.div>
         
-        <motion.div
-          className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
-        >
-          {[1, 2, 3].map((item) => (
-            <div 
-              key={item}
-              className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
-            >
-              <h3 className="text-xl font-semibold text-cyan-400">Featured Collection {item}</h3>
-              <p className="mt-2 text-gray-300">Explore our curated collection of stunning AI-generated images</p>
-            </div>
-          ))}
-        </motion.div>
+        <Suspense fallback={<CollectionsSkeleton />}>
+          <Collections />
+        </Suspense>
       </div>
       
       {/* Scroll indicator */}

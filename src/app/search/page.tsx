@@ -4,13 +4,14 @@ import { useState, useEffect } from "react";
 import { Search, Filter, X } from "lucide-react";
 import Masonry from "react-masonry-css";
 import { motion } from "framer-motion";
+import { getImages, searchImages } from "@/lib/supabase";
 
 interface ImageItem {
-  id: number;
+  id: string;
   url: string;
   prompt: string;
   category: string;
-  mood: string;
+  tags: string[];
 }
 
 export default function SearchPage() {
@@ -19,47 +20,66 @@ export default function SearchPage() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedMood, setSelectedMood] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   const categories = ["All", "Nature", "Urban", "Abstract", "Sci-Fi"];
   const moods = ["All", "Calm", "Energetic", "Vibrant", "Minimal", "Futuristic", "Relaxing", "Mysterious", "Nostalgic"];
 
+  // Load initial images
+  useEffect(() => {
+    const loadInitialImages = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await getImages(12);
+        if (error) {
+          setError("Failed to load images");
+          console.error("Error fetching images:", error);
+        } else {
+          setFilteredImages(data || []);
+        }
+      } catch (err) {
+        setError("Failed to load images");
+        console.error("Unexpected error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInitialImages();
+  }, []);
+
   // Filter images based on search query and filters
   useEffect(() => {
-    // Mock data for images
-    const mockImages: ImageItem[] = [
-      { id: 1, url: "/search1.jpg", prompt: "A futuristic cityscape at sunset", category: "Urban", mood: "Energetic" },
-      { id: 2, url: "/search2.jpg", prompt: "Abstract geometric patterns with vibrant colors", category: "Abstract", mood: "Vibrant" },
-      { id: 3, url: "/search3.jpg", prompt: "Serene mountain landscape with misty clouds", category: "Nature", mood: "Calm" },
-      { id: 4, url: "/search4.jpg", prompt: "Cyberpunk street scene with neon signs", category: "Urban", mood: "Futuristic" },
-      { id: 5, url: "/search5.jpg", prompt: "Minimalist composition with geometric shapes", category: "Abstract", mood: "Minimal" },
-      { id: 6, url: "/search6.jpg", prompt: "Tropical beach with crystal clear water", category: "Nature", mood: "Relaxing" },
-      { id: 7, url: "/search7.jpg", prompt: "Space station orbiting a distant planet", category: "Sci-Fi", mood: "Mysterious" },
-      { id: 8, url: "/search8.jpg", prompt: "Vintage car in a rainy city street", category: "Urban", mood: "Nostalgic" },
-    ];
-    
-    let results = mockImages;
-    
-    if (searchQuery) {
-      results = results.filter(image => 
-        image.prompt.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    if (selectedCategory && selectedCategory !== "All") {
-      results = results.filter(image => 
-        image.category === selectedCategory
-      );
-    }
-    
-    if (selectedMood && selectedMood !== "All") {
-      results = results.filter(image => 
-        image.mood === selectedMood
-      );
-    }
-    
-    setFilteredImages(results);
-  }, [searchQuery, selectedCategory, selectedMood]);
+    const performSearch = async () => {
+      if (searchQuery || selectedCategory) {
+        setIsLoading(true);
+        try {
+          const { data, error } = await searchImages(searchQuery, selectedCategory);
+          if (error) {
+            setError("Failed to search images");
+            console.error("Error searching images:", error);
+          } else {
+            setFilteredImages(data || []);
+          }
+        } catch (err) {
+          setError("Failed to search images");
+          console.error("Unexpected error:", err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    // Debounce search
+    const timeoutId = setTimeout(() => {
+      if (searchQuery || selectedCategory) {
+        performSearch();
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, selectedCategory]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -72,11 +92,60 @@ export default function SearchPage() {
 
   const clearSearch = () => {
     setSearchQuery("");
+    setSelectedCategory("");
   };
 
   const removeRecentSearch = (search: string) => {
     setRecentSearches(prev => prev.filter(s => s !== search));
   };
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-8 bg-gray-800/50 rounded w-1/4 mb-8 animate-pulse mx-auto"></div>
+          
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="h-12 bg-gray-800/50 rounded-xl animate-pulse"></div>
+          </div>
+          
+          <Masonry
+            breakpointCols={{
+              default: 4,
+              1100: 3,
+              700: 2,
+              500: 1
+            }}
+            className="my-masonry-grid flex w-auto"
+            columnClassName="my-masonry-grid_column"
+          >
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="mb-6 rounded-xl overflow-hidden bg-gray-800/50 backdrop-blur-sm border border-gray-700 animate-pulse">
+                <div className="h-64 bg-gray-700/50"></div>
+                <div className="p-4">
+                  <div className="h-4 bg-gray-700/50 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-700/50 rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
+          </Masonry>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen py-8 px-4">
+        <div className="max-w-7xl mx-auto text-center py-16">
+          <p className="text-gray-400 text-lg">{error}</p>
+          <p className="text-gray-500 mt-2">Please check your Supabase connection</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -132,15 +201,6 @@ export default function SearchPage() {
                 </button>
               </div>
             )}
-            
-            {selectedMood && selectedMood !== "All" && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-cyan-900/30 border border-cyan-800 rounded-lg text-cyan-400">
-                <span>{selectedMood}</span>
-                <button onClick={() => setSelectedMood("")}>
-                  <X size={16} />
-                </button>
-              </div>
-            )}
           </div>
           
           {/* Filter Panel */}
@@ -176,12 +236,11 @@ export default function SearchPage() {
                     {moods.map(mood => (
                       <button
                         key={mood}
-                        onClick={() => setSelectedMood(mood)}
-                        className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                          selectedMood === mood
-                            ? "bg-cyan-600 text-white"
-                            : "bg-gray-700/50 text-gray-300 hover:bg-gray-700"
-                        }`}
+                        onClick={() => {
+                          // For demo purposes, we'll just show a message
+                          alert(`Mood filter "${mood}" would be applied in a full implementation`);
+                        }}
+                        className="px-3 py-1.5 text-sm rounded-lg bg-gray-700/50 text-gray-300 hover:bg-gray-700 transition-colors"
                       >
                         {mood}
                       </button>
@@ -225,7 +284,7 @@ export default function SearchPage() {
         {searchQuery && (
           <div className="text-center mb-6">
             <p className="text-gray-400">
-              Found {filteredImages.length} result{filteredImages.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
+              Found {filteredImages.length} result{filteredImages.length !== 1 ? "s" : ""} for "{searchQuery}"
             </p>
           </div>
         )}
@@ -253,7 +312,10 @@ export default function SearchPage() {
                 <div className="relative">
                   <div 
                     className="h-64 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${image.url})` }}
+                    style={{ 
+                      backgroundImage: `url(${image.url})`,
+                      backgroundColor: '#1f2937'
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-80" />
                   
@@ -261,7 +323,9 @@ export default function SearchPage() {
                     <p className="text-white text-sm line-clamp-2">{image.prompt}</p>
                     <div className="flex gap-2 mt-2">
                       <span className="text-xs px-2 py-1 bg-gray-700/50 rounded">{image.category}</span>
-                      <span className="text-xs px-2 py-1 bg-gray-700/50 rounded">{image.mood}</span>
+                      {image.tags && image.tags.slice(0, 2).map((tag, index) => (
+                        <span key={index} className="text-xs px-2 py-1 bg-gray-700/50 rounded">{tag}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -270,7 +334,7 @@ export default function SearchPage() {
           </Masonry>
         ) : searchQuery ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg">No results found for &quot;{searchQuery}&quot;</p>
+            <p className="text-gray-400 text-lg">No results found for "{searchQuery}"</p>
             <p className="text-gray-500 mt-2">Try adjusting your search or filters</p>
           </div>
         ) : (
