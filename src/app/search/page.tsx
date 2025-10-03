@@ -238,7 +238,7 @@ export default function SearchPage() {
                         key={mood}
                         onClick={() => {
                           // For demo purposes, we'll just show a message
-                          alert(`Mood filter "${mood}" would be applied in a full implementation`);
+                          alert(`Mood filter &quot;${mood}&quot; would be applied in a full implementation`);
                         }}
                         className="px-3 py-1.5 text-sm rounded-lg bg-gray-700/50 text-gray-300 hover:bg-gray-700 transition-colors"
                       >
@@ -284,7 +284,7 @@ export default function SearchPage() {
         {searchQuery && (
           <div className="text-center mb-6">
             <p className="text-gray-400">
-              Found {filteredImages.length} result{filteredImages.length !== 1 ? "s" : ""} for "{searchQuery}"
+              Found {filteredImages.length} result{filteredImages.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
             </p>
           </div>
         )}
@@ -334,7 +334,7 @@ export default function SearchPage() {
           </Masonry>
         ) : searchQuery ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg">No results found for "{searchQuery}"</p>
+            <p className="text-gray-400 text-lg">No results found for &quot;{searchQuery}&quot;</p>
             <p className="text-gray-500 mt-2">Try adjusting your search or filters</p>
           </div>
         ) : (
