@@ -1,73 +1,14 @@
-import { Suspense } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Logo from "@/components/ui/logo";
 import { Button } from "@/components/ui/button";
-import { getCollections } from "@/lib/supabase";
 
-// Loading skeleton for collections
-function CollectionsSkeleton() {
-  return (
-    <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
-      {[1, 2, 3].map((item) => (
-        <div 
-          key={item}
-          className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 animate-pulse"
-        >
-          <div className="h-4 bg-gray-700 rounded w-3/4 mb-4"></div>
-          <div className="h-3 bg-gray-700 rounded w-full mb-2"></div>
-          <div className="h-3 bg-gray-700 rounded w-2/3"></div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Collections component that fetches data
-async function Collections() {
-  const { data: collections, error } = await getCollections();
-  
-  if (error) {
-    console.error("Error fetching collections:", error);
-    return (
-      <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
-        {[1, 2, 3].map((item) => (
-          <div 
-            key={item}
-            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
-          >
-            <h3 className="text-xl font-semibold text-cyan-400">Featured Collection {item}</h3>
-            <p className="mt-2 text-gray-300">Explore our curated collection of stunning AI-generated images</p>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
-      {collections && collections.length > 0 ? (
-        collections.slice(0, 3).map((collection) => (
-          <div 
-            key={collection.id}
-            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
-          >
-            <h3 className="text-xl font-semibold text-cyan-400">{collection.name}</h3>
-            <p className="mt-2 text-gray-300">{collection.description || "Explore our curated collection of stunning AI-generated images"}</p>
-          </div>
-        ))
-      ) : (
-        [1, 2, 3].map((item) => (
-          <div 
-            key={item}
-            className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
-          >
-            <h3 className="text-xl font-semibold text-cyan-400">Featured Collection {item}</h3>
-            <p className="mt-2 text-gray-300">Explore our curated collection of stunning AI-generated images</p>
-          </div>
-        ))
-      )}
-    </div>
-  );
+interface Collection {
+  id: number;
+  name: string;
+  description: string;
 }
 
 // Get time-based greeting
@@ -79,6 +20,23 @@ function getGreeting() {
 }
 
 export default function Home() {
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Simulate fetching collections (in a real app, this would be an API call)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setCollections([
+        { id: 1, name: "Featured Collection 1", description: "Explore our curated collection of stunning AI-generated images" },
+        { id: 2, name: "Featured Collection 2", description: "Explore our curated collection of stunning AI-generated images" },
+        { id: 3, name: "Featured Collection 3", description: "Explore our curated collection of stunning AI-generated images" }
+      ]);
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background with gradient overlay */}
@@ -123,9 +81,36 @@ export default function Home() {
           </Button>
         </motion.div>
         
-        <Suspense fallback={<CollectionsSkeleton />}>
-          <Collections />
-        </Suspense>
+        <motion.div
+          className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
+          {loading ? (
+            // Loading skeletons
+            [1, 2, 3].map((item) => (
+              <div 
+                key={item}
+                className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 animate-pulse"
+              >
+                <div className="h-4 bg-gray-700 rounded w-3/4 mb-4"></div>
+                <div className="h-3 bg-gray-700 rounded w-full mb-2"></div>
+                <div className="h-3 bg-gray-700 rounded w-2/3"></div>
+              </div>
+            ))
+          ) : (
+            collections.map((collection) => (
+              <div 
+                key={collection.id}
+                className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
+              >
+                <h3 className="text-xl font-semibold text-cyan-400">{collection.name}</h3>
+                <p className="mt-2 text-gray-300">{collection.description}</p>
+              </div>
+            ))
+          )}
+        </motion.div>
       </div>
       
       {/* Scroll indicator */}
