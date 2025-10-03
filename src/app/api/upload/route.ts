@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase, insertImage } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
+  // Check if Supabase is initialized
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not initialized' }, { status: 500 });
+  }
+  
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;

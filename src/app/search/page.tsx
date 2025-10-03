@@ -21,23 +21,23 @@ export default function SearchPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedMood, setSelectedMood] = useState<string>("");
 
-  // Mock data for images
-  const mockImages: ImageItem[] = [
-    { id: 1, url: "/search1.jpg", prompt: "A futuristic cityscape at sunset", category: "Urban", mood: "Energetic" },
-    { id: 2, url: "/search2.jpg", prompt: "Abstract geometric patterns with vibrant colors", category: "Abstract", mood: "Vibrant" },
-    { id: 3, url: "/search3.jpg", prompt: "Serene mountain landscape with misty clouds", category: "Nature", mood: "Calm" },
-    { id: 4, url: "/search4.jpg", prompt: "Cyberpunk street scene with neon signs", category: "Urban", mood: "Futuristic" },
-    { id: 5, url: "/search5.jpg", prompt: "Minimalist composition with geometric shapes", category: "Abstract", mood: "Minimal" },
-    { id: 6, url: "/search6.jpg", prompt: "Tropical beach with crystal clear water", category: "Nature", mood: "Relaxing" },
-    { id: 7, url: "/search7.jpg", prompt: "Space station orbiting a distant planet", category: "Sci-Fi", mood: "Mysterious" },
-    { id: 8, url: "/search8.jpg", prompt: "Vintage car in a rainy city street", category: "Urban", mood: "Nostalgic" },
-  ];
-
   const categories = ["All", "Nature", "Urban", "Abstract", "Sci-Fi"];
   const moods = ["All", "Calm", "Energetic", "Vibrant", "Minimal", "Futuristic", "Relaxing", "Mysterious", "Nostalgic"];
 
   // Filter images based on search query and filters
   useEffect(() => {
+    // Mock data for images
+    const mockImages: ImageItem[] = [
+      { id: 1, url: "/search1.jpg", prompt: "A futuristic cityscape at sunset", category: "Urban", mood: "Energetic" },
+      { id: 2, url: "/search2.jpg", prompt: "Abstract geometric patterns with vibrant colors", category: "Abstract", mood: "Vibrant" },
+      { id: 3, url: "/search3.jpg", prompt: "Serene mountain landscape with misty clouds", category: "Nature", mood: "Calm" },
+      { id: 4, url: "/search4.jpg", prompt: "Cyberpunk street scene with neon signs", category: "Urban", mood: "Futuristic" },
+      { id: 5, url: "/search5.jpg", prompt: "Minimalist composition with geometric shapes", category: "Abstract", mood: "Minimal" },
+      { id: 6, url: "/search6.jpg", prompt: "Tropical beach with crystal clear water", category: "Nature", mood: "Relaxing" },
+      { id: 7, url: "/search7.jpg", prompt: "Space station orbiting a distant planet", category: "Sci-Fi", mood: "Mysterious" },
+      { id: 8, url: "/search8.jpg", prompt: "Vintage car in a rainy city street", category: "Urban", mood: "Nostalgic" },
+    ];
+    
     let results = mockImages;
     
     if (searchQuery) {
@@ -59,7 +59,7 @@ export default function SearchPage() {
     }
     
     setFilteredImages(results);
-  }, [searchQuery, selectedCategory, selectedMood, mockImages]);
+  }, [searchQuery, selectedCategory, selectedMood]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

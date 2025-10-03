@@ -10,11 +10,17 @@ export type Prompt = Database['public']['Tables']['prompts']['Row'];
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Only create the client if we have a URL
+export const supabase = supabaseUrl ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 // Helper functions for common operations
-
-export async function getImages(limit: number = 20, offset: number = 0) {
+// Only export these functions if supabase client is available
+export const getImages = async (limit: number = 20, offset: number = 0) => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized');
+    return { data: [], error: new Error('Supabase not initialized') };
+  }
+  
   const { data, error } = await supabase
     .from('images')
     .select('*')
@@ -27,9 +33,14 @@ export async function getImages(limit: number = 20, offset: number = 0) {
   }
   
   return { data, error: null };
-}
+};
 
-export async function getCollections() {
+export const getCollections = async () => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized');
+    return { data: [], error: new Error('Supabase not initialized') };
+  }
+  
   const { data, error } = await supabase
     .from('collections')
     .select('*')
@@ -41,9 +52,14 @@ export async function getCollections() {
   }
   
   return { data, error: null };
-}
+};
 
-export async function getPrompts(limit: number = 10) {
+export const getPrompts = async (limit: number = 10) => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized');
+    return { data: [], error: new Error('Supabase not initialized') };
+  }
+  
   const { data, error } = await supabase
     .from('prompts')
     .select('*')
@@ -56,9 +72,14 @@ export async function getPrompts(limit: number = 10) {
   }
   
   return { data, error: null };
-}
+};
 
-export async function searchImages(query: string, category?: string) {
+export const searchImages = async (query: string, category?: string) => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized');
+    return { data: [], error: new Error('Supabase not initialized') };
+  }
+  
   let supabaseQuery = supabase
     .from('images')
     .select('*')
@@ -77,10 +98,15 @@ export async function searchImages(query: string, category?: string) {
   }
   
   return { data, error: null };
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function insertImage(imageData: any) {
+export const insertImage = async (imageData: any) => {
+  if (!supabase) {
+    console.warn('Supabase client not initialized');
+    return { data: null, error: new Error('Supabase not initialized') };
+  }
+  
   const { data, error } = await supabase
     .from('images')
     .insert([imageData])
@@ -93,4 +119,4 @@ export async function insertImage(imageData: any) {
   }
   
   return { data, error: null };
-}
+};
