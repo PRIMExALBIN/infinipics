@@ -51,7 +51,7 @@ export default function RandomPage() {
                   <p className="mt-4 text-gray-300">Generated Image</p>
                 </div>
               ) : (
-                <div className="text-gray-400">Click "Generate New" to create an image</div>
+                <div className="text-gray-400">Click &quot;Generate New&quot; to create an image</div>
               )}
             </div>
             
