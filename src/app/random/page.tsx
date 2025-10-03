@@ -61,7 +61,7 @@ export default function RandomPage() {
                 disabled={isLoading}
                 className="w-full py-4 text-lg rounded-xl bg-gradient-to-r from-violet-600 via-blue-500 to-cyan-500 hover:from-violet-700 hover:via-blue-600 hover:to-cyan-600 text-white disabled:opacity-50"
               >
-                {isLoading ? "Generating..." : "Generate New"}
+                {isLoading ? 'Generating...' : 'Generate New'}
               </button>
             </div>
           </div>
