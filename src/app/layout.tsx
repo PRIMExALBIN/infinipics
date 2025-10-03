@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/layout/navigation";
 import { ToastProvider } from "@/components/ui/toast-context";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -39,6 +40,7 @@ export default function RootLayout({
           </main>
           <Navigation />
         </ToastProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
