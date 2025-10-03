@@ -59,7 +59,7 @@ export default function SearchPage() {
     }
     
     setFilteredImages(results);
-  }, [searchQuery, selectedCategory, selectedMood]);
+  }, [searchQuery, selectedCategory, selectedMood, mockImages]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

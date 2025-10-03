@@ -79,6 +79,7 @@ export async function searchImages(query: string, category?: string) {
   return { data, error: null };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function insertImage(imageData: any) {
   const { data, error } = await supabase
     .from('images')
