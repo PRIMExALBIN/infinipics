@@ -5,16 +5,24 @@ import { Search, Filter, X } from "lucide-react";
 import Masonry from "react-masonry-css";
 import { motion } from "framer-motion";
 
+interface ImageItem {
+  id: number;
+  url: string;
+  prompt: string;
+  category: string;
+  mood: string;
+}
+
 export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredImages, setFilteredImages] = useState<any[]>([]);
+  const [filteredImages, setFilteredImages] = useState<ImageItem[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedMood, setSelectedMood] = useState<string>("");
 
   // Mock data for images
-  const mockImages = [
+  const mockImages: ImageItem[] = [
     { id: 1, url: "/search1.jpg", prompt: "A futuristic cityscape at sunset", category: "Urban", mood: "Energetic" },
     { id: 2, url: "/search2.jpg", prompt: "Abstract geometric patterns with vibrant colors", category: "Abstract", mood: "Vibrant" },
     { id: 3, url: "/search3.jpg", prompt: "Serene mountain landscape with misty clouds", category: "Nature", mood: "Calm" },
@@ -217,7 +225,7 @@ export default function SearchPage() {
         {searchQuery && (
           <div className="text-center mb-6">
             <p className="text-gray-400">
-              Found {filteredImages.length} result{filteredImages.length !== 1 ? "s" : ""} for "{searchQuery}"
+              Found {filteredImages.length} result{filteredImages.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
             </p>
           </div>
         )}
@@ -262,7 +270,7 @@ export default function SearchPage() {
           </Masonry>
         ) : searchQuery ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg">No results found for "{searchQuery}"</p>
+            <p className="text-gray-400 text-lg">No results found for &quot;{searchQuery}&quot;</p>
             <p className="text-gray-500 mt-2">Try adjusting your search or filters</p>
           </div>
         ) : (

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, AlertCircle, XCircle, X } from 'lucide-react';
 
@@ -15,13 +14,10 @@ interface ToastProps {
 }
 
 function Toast({ id, message, type, duration = 5000, onDismiss }: ToastProps) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onDismiss(id);
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [id, duration, onDismiss]);
+  // Auto-dismiss timer
+  setTimeout(() => {
+    onDismiss(id);
+  }, duration);
 
   const getIcon = () => {
     switch (type) {

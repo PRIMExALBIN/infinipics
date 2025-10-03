@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Copy, Shuffle, Heart, Download, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function RandomPage() {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
@@ -105,11 +106,14 @@ export default function RandomPage() {
                     transition={{ duration: 0.5 }}
                     className="relative"
                   >
-                    <img 
-                      src={currentImage} 
-                      alt="AI Generated" 
-                      className="w-full h-auto max-h-[600px] object-cover"
-                    />
+                    <div className="relative h-[600px]">
+                      <Image 
+                        src={currentImage} 
+                        alt="AI Generated" 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-60" />
                     
                     <div className="absolute top-4 right-4 flex gap-2">
@@ -206,10 +210,14 @@ export default function RandomPage() {
                       setPrompt(item.prompt);
                     }}
                   >
-                    <div 
-                      className="h-32 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${item.image})` }}
-                    />
+                    <div className="relative h-32">
+                      <Image 
+                        src={item.image} 
+                        alt="Generated image" 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                     <div className="p-2">
                       <p className="text-xs text-gray-300 truncate">{item.prompt}</p>
                     </div>

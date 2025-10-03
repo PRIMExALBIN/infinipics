@@ -10,7 +10,7 @@ export type Prompt = Database['public']['Tables']['prompts']['Row'];
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Helper functions for common operations
 
@@ -82,7 +82,7 @@ export async function searchImages(query: string, category?: string) {
 export async function insertImage(imageData: any) {
   const { data, error } = await supabase
     .from('images')
-    .insert(imageData)
+    .insert([imageData])
     .select()
     .single();
   

@@ -11,7 +11,6 @@ interface DropzoneProps {
 
 export default function Dropzone({ onDrop, accept = 'image/*', multiple = true }: DropzoneProps) {
   const [isDragActive, setIsDragActive] = useState(false);
-  const [isFileDialogActive, setIsFileDialogActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -55,7 +54,6 @@ export default function Dropzone({ onDrop, accept = 'image/*', multiple = true }
 
   const handleClick = () => {
     if (fileInputRef.current) {
-      setIsFileDialogActive(true);
       fileInputRef.current.click();
     }
   };

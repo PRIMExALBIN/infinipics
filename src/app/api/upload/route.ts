@@ -17,12 +17,12 @@ export async function POST(request: NextRequest) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     
-    const { data, error } = await supabase.storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
       .from('images')
       .upload(fileName, file);
     
-    if (error) {
-      console.error('Error uploading image:', error);
+    if (uploadError) {
+      console.error('Error uploading image:', uploadError);
       return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
     }
     
